@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabor da Casa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <aside class="menu-lateral">
+        <div class="logo">
+            <span>SC</span>
+            <div>
+                <strong>Sabor da Casa</strong>
+                <small>Sistema do restaurante</small>
+            </div>
+        </div>
+
+        <nav>
+            <button class="botao-menu ativo" data-tela="garcom">
+                <span>🍽️</span> Tela do garçom
+            </button>
+            <button class="botao-menu" data-tela="caixa">
+                <span>💳</span> Tela do caixa
+            </button>
+            <button class="botao-menu" data-tela="gerente">
+                <span>📊</span> Tela do gerente
+            </button>
+        </nav>
+
+        <div class="status-caixa">
+            <span class="ponto"></span>
+            Caixa <strong id="status-caixa-menu">aberto</strong>
+        </div>
+    </aside>
+
+    <main>
+        <header class="cabecalho">
+            <div>
+                <p class="data" id="data-atual"></p>
+                <h1 id="titulo-tela">Atendimento do garçom</h1>
+            </div>
+            <div class="usuario">
+                <div class="avatar">BF</div>
+                <div>
+                    <strong>Bruno</strong>
+                    <small id="perfil-atual">Garçom</small>
+                </div>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem escondido"></div>
+
+        <!-- TELA DO GARÇOM -->
+        <section id="tela-garcom" class="tela ativa">
+            <div class="painel-mesas">
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Escolha a mesa</h2>
+                        <p>Mesas ocupadas também podem receber novos itens.</p>
+                    </div>
+                    <div class="legenda">
+                        <span><i class="livre"></i>Livre</span>
+                        <span><i class="ocupada"></i>Ocupada</span>
+                    </div>
+                </div>
+                <div id="lista-mesas" class="lista-mesas"></div>
+            </div>
+
+            <div class="atendimento-grid">
+                <div class="painel-cardapio">
+                    <div class="titulo-secao">
+                        <div>
+                            <h2>Cardápio</h2>
+                            <p>Clique no produto para adicionar.</p>
+                        </div>
+                    </div>
+                    <div id="filtros-cardapio" class="filtros"></div>
+                    <div id="lista-cardapio" class="lista-cardapio"></div>
+                </div>
+
+                <aside class="painel-pedido">
+                    <div class="titulo-pedido">
+                        <div>
+                            <small>PEDIDO ATUAL</small>
+                            <h2 id="mesa-pedido">Selecione uma mesa</h2>
+                        </div>
+                        <button id="limpar-pedido" class="botao-texto">Limpar</button>
+                    </div>
+                    <div id="itens-pedido" class="itens-pedido">
+                        <div class="vazio">
+                            <span>🧾</span>
+                            <p>Nenhum item adicionado</p>
+                        </div>
+                    </div>
+                    <div class="resumo-pedido">
+                        <div>
+                            <span>Total</span>
+                            <strong id="total-pedido">R$ 0,00</strong>
+                        </div>
+                        <button id="enviar-pedido" class="botao-principal">Enviar pedido</button>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- TELA DO CAIXA -->
+        <section id="tela-caixa" class="tela">
+            <div class="cards-resumo">
+                <article class="card-numero">
+                    <span class="icone verde">R$</span>
+                    <div><small>Faturamento do dia</small><strong id="caixa-total">R$ 0,00</strong></div>
+                </article>
+                <article class="card-numero">
+                    <span class="icone laranja">#</span>
+                    <div><small>Vendas finalizadas</small><strong id="caixa-vendas">0</strong></div>
+                </article>
+                <article class="card-numero">
+                    <span class="icone azul">⌛</span>
+                    <div><small>Contas abertas</small><strong id="caixa-abertas">0</strong></div>
+                </article>
+            </div>
+
+            <div class="painel">
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Contas em aberto</h2>
+                        <p>Confira os itens e selecione a forma de pagamento.</p>
+                    </div>
+                </div>
+                <div id="lista-contas" class="lista-contas"></div>
+            </div>
+        </section>
+
+        <!-- TELA DO GERENTE -->
+        <section id="tela-gerente" class="tela">
+            <div class="cards-resumo">
+                <article class="card-numero destaque">
+                    <span class="icone verde">R$</span>
+                    <div><small>Faturamento</small><strong id="gerente-total">R$ 0,00</strong></div>
+                </article>
+                <article class="card-numero">
+                    <span class="icone roxo">↗</span>
+                    <div><small>Ticket médio</small><strong id="ticket-medio">R$ 0,00</strong></div>
+                </article>
+                <article class="card-numero">
+                    <span class="icone vermelho">!</span>
+                    <div><small>Estoque baixo</small><strong id="estoque-baixo">0 itens</strong></div>
+                </article>
+            </div>
+
+            <div class="gerente-grid">
+                <div class="painel">
+                    <div class="titulo-secao">
+                        <div>
+                            <h2>Controle de estoque</h2>
+                            <p>Produtos com 5 unidades ou menos precisam de reposição.</p>
+                        </div>
+                        <select id="filtro-estoque" class="campo-pequeno">
+                            <option value="todos">Todos os produtos</option>
+                            <option value="baixo">Somente estoque baixo</option>
+                        </select>
+                    </div>
+                    <div class="tabela-responsiva">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Mínimo</th>
+                                    <th>Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-estoque"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <aside class="painel reposicao">
+                    <h2>Repor estoque</h2>
+                    <p>Informe o produto recebido e a quantidade.</p>
+                    <label for="produto-reposicao">Produto</label>
+                    <select id="produto-reposicao"></select>
+                    <label for="quantidade-reposicao">Quantidade</label>
+                    <input id="quantidade-reposicao" type="number" min="1" value="5">
+                    <button id="repor-estoque" class="botao-principal">Registrar entrada</button>
+                </aside>
+            </div>
+
+            <div class="painel painel-vendas">
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Últimas vendas</h2>
+                        <p>Resumo das contas já finalizadas.</p>
+                    </div>
+                </div>
+                <div id="lista-vendas" class="lista-vendas"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
