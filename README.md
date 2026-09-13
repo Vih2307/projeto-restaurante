@@ -130,7 +130,20 @@ O Flask faz a comunicação entre a interface e as classes Python. O HTML cria a
 
 Estrutura do projeto
 
-projeto-restaurante/ ├── app.py ├── caixa.py ├── categoria.py ├── estoque.py ├── mesa.py ├── pedido.py ├── requirements.txt ├── test_app.py ├── static/ │ ├── script.js │ └── style.css └── templates/ └── index.html
+projeto-restaurante/
+├── app.py
+├── caixa.py
+├── categoria.py
+├── estoque.py
+├── mesa.py
+├── pedido.py
+├── requirements.txt
+├── test_app.py
+├── static/
+│   ├── script.js
+│   └── style.css
+└── templates/
+    └── index.html
 
 Explicação dos arquivos
 
