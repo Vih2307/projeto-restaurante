@@ -1,41 +1,201 @@
+/* ==========================================================
+   Sabor da Casa - página de acesso
+   Painel de marca com padrão de azulejo + formulário limpo.
+   ========================================================== */
+
+:root {
+    --verde-garrafa: #14382f;
+    --verde-medio: #24594b;
+    --papel: #f2f4f0;
+    --branco: #ffffff;
+    --tinta: #17201c;
+    --cinza: #56635c;
+    --tomate: #c93a28;
+    --tomate-escuro: #a62e1f;
+    --folha: #2a7f52;
+    --mostarda: #e8b53a;
+    --fonte: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
 body {
-    font-family: Arial, sans-serif;
-    background: #f5f2ed;
-    color: #34291f;
     margin: 0;
+    background: var(--papel);
+    color: var(--tinta);
+    font-family: var(--fonte);
+    font-size: 16px;
+    line-height: 1.45;
 }
-main {
-    max-width: 390px;
-    margin: 50px auto;
-    padding: 25px;
-    background: white;
-    border-radius: 12px;
+
+h1, h2, p { margin: 0; }
+button, input { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--mostarda); outline-offset: 2px; }
+
+/* ---------- Estrutura em duas colunas ---------- */
+.pagina {
+    display: grid;
+    grid-template-columns: minmax(320px, 5fr) minmax(360px, 6fr);
+    min-height: 100vh;
 }
-label, input, button {
-    display: block;
+
+/* ---------- Painel de marca ---------- */
+.marca {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 48px;
+    overflow: hidden;
+    background: var(--verde-garrafa);
+    color: var(--branco);
+}
+
+/* Azulejo: losangos alternados repetidos pelo CSS (conic-gradient) */
+.azulejo {
+    position: absolute;
+    inset: 0;
+    background:
+        conic-gradient(from 45deg at 50% 50%, var(--verde-medio) 0 25%, transparent 0 50%, var(--verde-medio) 0 75%, transparent 0) 0 0 / 64px 64px;
+    opacity: 0.55;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 85%);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 85%);
+}
+
+.marca-texto { position: relative; max-width: 380px; }
+.selo {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 18px;
+    border-radius: 50%;
+    background: var(--tomate);
+    font-size: 20px;
+    font-weight: 700;
+}
+.marca h1 { font-size: 44px; line-height: 1.05; letter-spacing: -0.02em; }
+.marca p { margin-top: 12px; color: #c9d8d2; font-size: 18px; }
+
+/* ---------- Formulários ---------- */
+.acesso {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     width: 100%;
-    box-sizing: border-box;
-    margin-top: 12px;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 40px 24px;
 }
-input, button {
-    padding: 12px;
-    border: 1px solid #b8aca1;
-    border-radius: 6px;
+
+h2 { font-size: 30px; line-height: 1.15; letter-spacing: -0.01em; }
+h2:focus { outline: none; }
+.apoio { margin-top: 6px; color: var(--cinza); }
+
+label { display: block; margin: 18px 0 6px; font-size: 14px; font-weight: 500; }
+
+input {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid #aab4ad;
+    border-radius: 10px;
+    background: var(--branco);
 }
-button {
+input:focus-visible { outline-offset: 0; border-color: var(--verde-garrafa); }
+
+.codigo {
+    font-size: 24px;
+    letter-spacing: 0.4em;
+    text-align: center;
+}
+
+.campo-senha { position: relative; }
+.campo-senha input { padding-right: 84px; }
+.ver-senha {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--verde-garrafa);
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    background: #754329;
-    color: white;
 }
-button:disabled {
-    opacity: 0.6;
+.ver-senha:hover { background: var(--papel); }
+
+.botao {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 24px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--tomate);
+    color: var(--branco);
+    font-weight: 700;
+    cursor: pointer;
 }
-[hidden] {
-    display: none;
+.botao:hover { background: var(--tomate-escuro); }
+.botao:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.link {
+    display: block;
+    min-height: 44px;
+    margin-top: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--verde-garrafa);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
 }
+form + .link { margin-top: 14px; }
+
+/* ---------- Mensagens e regras da senha ---------- */
 #mensagem {
-    line-height: 1.5;
+    min-height: 0;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    font-weight: 500;
 }
-@media (max-width: 480px) {
-    main { margin: 20px 12px; }
+#mensagem:not(:empty) { padding: 12px 14px; background: #ddf0e4; color: #1b5c39; }
+#mensagem.erro:not(:empty) { background: #fbe3de; color: var(--tomate-escuro); }
+
+.regras {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+    color: var(--cinza);
+    font-size: 14px;
+}
+.regras li::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border: 2px solid #aab4ad;
+    border-radius: 50%;
+    vertical-align: -1px;
+}
+.regras li.ok { color: #1b5c39; }
+.regras li.ok::before { border-color: var(--folha); background: var(--folha); }
+
+/* ---------- Celular: painel de marca vira faixa no topo ---------- */
+@media (max-width: 800px) {
+    .pagina { grid-template-columns: 1fr; min-height: 0; }
+    .marca { padding: 28px 24px; align-items: center; }
+    .marca h1 { font-size: 30px; }
+    .marca p { display: none; }
+    .selo { width: 44px; height: 44px; margin-bottom: 10px; font-size: 16px; }
+    .acesso { padding: 28px 20px 40px; }
+    h2 { font-size: 26px; }
 }

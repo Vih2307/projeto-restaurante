@@ -5,154 +5,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabor da Casa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <aside class="menu-lateral">
-        <div class="logo">
-            <span>SC</span>
+<body data-email="{{ session['email'] }}">
+
+    <!-- Biblioteca de ícones SVG (usados com <use href="#i-nome">) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="i-garcom" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10M17 3v8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-pedidos" viewBox="0 0 24 24"><path d="M9 4h6v3H9zM7 5.5H5.5v15h13v-15H17M9 12h6M9 16h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-caixa" viewBox="0 0 24 24"><path d="M3 7h18v12H3zM3 7l2-3h14l2 3M15 13h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-gerente" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-sair" viewBox="0 0 24 24"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-4.2-4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-menos" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 4 2.5 20h19zM12 10v4.5M12 17.2v.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    </svg>
+
+    <a class="pular" href="#principal">Pular para o conteúdo</a>
+
+    <header class="topo">
+        <div class="marca">
+            <span class="selo" aria-hidden="true">BKV</span>
             <div>
-                <strong>Sabor da Casa</strong>
-                <small>Sistema do restaurante</small>
+                <strong>Restaurante BKV</strong>
+                <small id="data-atual"></small>
             </div>
         </div>
 
-        <p>{{ session["email"] }}</p><button type="button" onclick="sair()">Sair</button>
-        <nav>
-            <button class="botao-menu ativo" data-tela="garcom">
-                <span>🍽️</span> Tela do garçom
+        <nav class="abas" aria-label="Telas do sistema">
+            <button type="button" class="aba ativa" data-tela="garcom" aria-current="page">
+                <svg class="icone" aria-hidden="true"><use href="#i-garcom"/></svg><span>Garçom</span>
             </button>
-            <button class="botao-menu" data-tela="caixa">
-                <span>💳</span> Tela do caixa
+            <button type="button" class="aba" data-tela="pedidos">
+                <svg class="icone" aria-hidden="true"><use href="#i-pedidos"/></svg><span>Pedidos</span>
+                <b class="contador" id="contador-pedidos" hidden>0</b>
             </button>
-            <button class="botao-menu" data-tela="gerente">
-                <span>📊</span> Tela do gerente
+            <button type="button" class="aba" data-tela="caixa">
+                <svg class="icone" aria-hidden="true"><use href="#i-caixa"/></svg><span>Caixa</span>
+            </button>
+            <button type="button" class="aba" data-tela="gerente">
+                <svg class="icone" aria-hidden="true"><use href="#i-gerente"/></svg><span>Gerente</span>
+                <b class="contador alerta" id="contador-estoque" hidden>0</b>
             </button>
         </nav>
 
-        <div class="status-caixa">
-            <span class="ponto"></span>
-            Caixa <strong id="status-caixa-menu">aberto</strong>
-        </div>
-    </aside>
-
-    <main>
-        <header class="cabecalho">
-            <div>
-                <p class="data" id="data-atual"></p>
-                <h1 id="titulo-tela">Atendimento do garçom</h1>
-            </div>
+        <div class="topo-direita">
+            <span class="status-caixa" id="status-caixa"><i></i><span id="status-caixa-texto">Caixa</span></span>
             <div class="usuario">
-                <div class="avatar">BF</div>
-                <div>
-                    <strong>Bruno</strong>
-                    <small id="perfil-atual">Garçom</small>
-                </div>
+                <span class="avatar" id="avatar" aria-hidden="true"></span>
+                <span class="usuario-nome" id="nome-usuario"></span>
             </div>
-        </header>
+            <button type="button" class="botao-icone" id="botao-sair" aria-label="Sair do sistema" title="Sair">
+                <svg class="icone" aria-hidden="true"><use href="#i-sair"/></svg>
+            </button>
+        </div>
+    </header>
 
-        <div id="mensagem" class="mensagem escondido"></div>
-        <section id="tela-garcom" class="tela ativa">
-            <div class="painel-mesas">
-                <div class="titulo-secao">
-                    <div>
-                        <h2>Escolha a mesa</h2>
-                        <p>Mesas ocupadas também podem receber novos itens.</p>
-                    </div>
-                    <div class="legenda">
-                        <span><i class="livre"></i>Livre</span>
-                        <span><i class="ocupada"></i>Ocupada</span>
-                    </div>
+    <main id="principal">
+        <div class="aviso-conexao" id="aviso-conexao" hidden>Sem conexão com o servidor. Tentando de novo em instantes.</div>
+
+        <!-- ======================= GARÇOM ======================= -->
+        <section id="tela-garcom" class="tela ativa" aria-labelledby="titulo-garcom">
+            <h1 class="titulo-tela" id="titulo-garcom">Atendimento</h1>
+
+            <div class="garcom">
+                <div class="garcom-esquerda">
+                    <section class="bloco" aria-labelledby="titulo-mesas">
+                        <div class="bloco-topo">
+                            <div>
+                                <h2 id="titulo-mesas">Mesas</h2>
+                                <p>Mesas ocupadas também recebem novos itens.</p>
+                            </div>
+                            <ul class="legenda">
+                                <li><i class="livre"></i>Livre</li>
+                                <li><i class="ocupada"></i>Ocupada</li>
+                            </ul>
+                        </div>
+                        <div id="lista-mesas" class="lista-mesas"></div>
+                    </section>
+
+                    <section class="bloco" aria-labelledby="titulo-cardapio">
+                        <div class="bloco-topo">
+                            <div>
+                                <h2 id="titulo-cardapio">Cardápio</h2>
+                                <p>Toque em um prato para adicionar à comanda.</p>
+                            </div>
+                            <label class="busca">
+                                <svg class="icone" aria-hidden="true"><use href="#i-busca"/></svg>
+                                <input id="busca-cardapio" type="search" placeholder="Buscar prato" aria-label="Buscar no cardápio" autocomplete="off">
+                            </label>
+                        </div>
+                        <div id="filtros-cardapio" class="filtros" role="group" aria-label="Categorias"></div>
+                        <div id="lista-cardapio" class="lista-cardapio"></div>
+                    </section>
                 </div>
-                <div id="lista-mesas" class="lista-mesas"></div>
-            </div>
 
-            <div class="atendimento-grid">
-                <div class="painel-cardapio">
-                    <div class="titulo-secao">
-                        <div>
-                            <h2>Cardápio</h2>
-                            <p>Clique no produto para adicionar.</p>
+                <aside class="comanda" id="comanda" aria-labelledby="titulo-comanda">
+                    <div class="comanda-corpo">
+                        <div class="comanda-topo">
+                            <h2 id="titulo-comanda">Comanda</h2>
+                            <p id="mesa-pedido" class="comanda-mesa">Escolha uma mesa</p>
                         </div>
-                    </div>
-                    <div id="filtros-cardapio" class="filtros"></div>
-                    <div id="lista-cardapio" class="lista-cardapio"></div>
-                </div>
 
-                <aside class="painel-pedido">
-                    <div class="titulo-pedido">
-                        <div>
-                            <small>PEDIDO ATUAL</small>
-                            <h2 id="mesa-pedido">Selecione uma mesa</h2>
-                        </div>
-                        <button id="limpar-pedido" class="botao-texto">Limpar</button>
-                    </div>
-                    <div id="itens-pedido" class="itens-pedido">
-                        <div class="vazio">
-                            <span>🧾</span>
-                            <p>Nenhum item adicionado</p>
-                        </div>
-                    </div>
-                    <div class="resumo-pedido">
-                        <div>
-                            <span>Total</span>
+                        <div id="itens-enviados" class="itens-enviados" hidden></div>
+
+                        <div id="itens-pedido" class="itens-pedido"></div>
+
+                        <div class="comanda-total">
+                            <span>Total deste envio</span>
                             <strong id="total-pedido">R$ 0,00</strong>
                         </div>
-                        <button id="enviar-pedido" class="botao-principal">Enviar pedido</button>
+
+                        <div class="comanda-acoes">
+                            <button type="button" id="limpar-pedido" class="botao botao-texto">Limpar</button>
+                            <button type="button" id="enviar-pedido" class="botao botao-principal">Enviar à cozinha</button>
+                        </div>
                     </div>
                 </aside>
             </div>
+
+            <button type="button" class="resumo-fixo" id="resumo-fixo" hidden>
+                <span id="resumo-fixo-qtd">0 itens</span>
+                <strong id="resumo-fixo-total">R$ 0,00</strong>
+                <span>Ver comanda</span>
+            </button>
         </section>
-        <section id="tela-caixa" class="tela">
-            <div class="cards-resumo">
-                <article class="card-numero">
-                    <span class="icone verde">R$</span>
-                    <div><small>Faturamento do dia</small><strong id="caixa-total">R$ 0,00</strong></div>
+
+        <!-- ======================= PEDIDOS ======================= -->
+        <section id="tela-pedidos" class="tela" aria-labelledby="titulo-pedidos">
+            <h1 class="titulo-tela" id="titulo-pedidos">Pedidos em andamento</h1>
+            <div class="quadro" id="quadro-pedidos"></div>
+        </section>
+
+        <!-- ======================= CAIXA ======================= -->
+        <section id="tela-caixa" class="tela" aria-labelledby="titulo-caixa">
+            <h1 class="titulo-tela" id="titulo-caixa">Caixa</h1>
+
+            <div class="indicadores">
+                <article class="indicador">
+                    <small>Faturamento do dia</small>
+                    <strong id="caixa-total">R$ 0,00</strong>
                 </article>
-                <article class="card-numero">
-                    <span class="icone laranja">#</span>
-                    <div><small>Vendas finalizadas</small><strong id="caixa-vendas">0</strong></div>
+                <article class="indicador">
+                    <small>Vendas finalizadas</small>
+                    <strong id="caixa-vendas">0</strong>
                 </article>
-                <article class="card-numero">
-                    <span class="icone azul">⌛</span>
-                    <div><small>Contas abertas</small><strong id="caixa-abertas">0</strong></div>
+                <article class="indicador">
+                    <small>Contas abertas</small>
+                    <strong id="caixa-abertas">0</strong>
                 </article>
             </div>
 
-            <div class="painel">
-                <div class="titulo-secao">
+            <section class="bloco" aria-labelledby="titulo-contas">
+                <div class="bloco-topo">
                     <div>
-                        <h2>Contas em aberto</h2>
-                        <p>Confira os itens e selecione a forma de pagamento.</p>
+                        <h2 id="titulo-contas">Contas em aberto</h2>
+                        <p>Confira os itens, escolha a forma de pagamento e finalize.</p>
                     </div>
                 </div>
                 <div id="lista-contas" class="lista-contas"></div>
-            </div>
+            </section>
         </section>
-        <section id="tela-gerente" class="tela">
-            <div class="cards-resumo">
-                <article class="card-numero destaque">
-                    <span class="icone verde">R$</span>
-                    <div><small>Faturamento</small><strong id="gerente-total">R$ 0,00</strong></div>
+
+        <!-- ======================= GERENTE ======================= -->
+        <section id="tela-gerente" class="tela" aria-labelledby="titulo-gerente">
+            <h1 class="titulo-tela" id="titulo-gerente">Gerência</h1>
+
+            <div class="indicadores">
+                <article class="indicador destaque">
+                    <small>Faturamento</small>
+                    <strong id="gerente-total">R$ 0,00</strong>
                 </article>
-                <article class="card-numero">
-                    <span class="icone roxo">↗</span>
-                    <div><small>Ticket médio</small><strong id="ticket-medio">R$ 0,00</strong></div>
+                <article class="indicador">
+                    <small>Ticket médio</small>
+                    <strong id="ticket-medio">R$ 0,00</strong>
                 </article>
-                <article class="card-numero">
-                    <span class="icone vermelho">!</span>
-                    <div><small>Estoque baixo</small><strong id="estoque-baixo">0 itens</strong></div>
+                <article class="indicador" id="indicador-estoque">
+                    <small>Estoque baixo</small>
+                    <strong id="estoque-baixo">0 itens</strong>
                 </article>
             </div>
 
             <div class="gerente-grid">
-                <div class="painel">
-                    <div class="titulo-secao">
+                <section class="bloco" aria-labelledby="titulo-estoque">
+                    <div class="bloco-topo">
                         <div>
-                            <h2>Controle de estoque</h2>
+                            <h2 id="titulo-estoque">Estoque</h2>
                             <p>Produtos com 5 unidades ou menos precisam de reposição.</p>
                         </div>
-                        <select id="filtro-estoque" class="campo-pequeno">
+                        <select id="filtro-estoque" class="campo campo-pequeno" aria-label="Filtrar estoque">
                             <option value="todos">Todos os produtos</option>
                             <option value="baixo">Somente estoque baixo</option>
                         </select>
@@ -161,39 +208,73 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Produto</th>
-                                    <th>Quantidade</th>
-                                    <th>Mínimo</th>
-                                    <th>Situação</th>
+                                    <th scope="col">Produto</th>
+                                    <th scope="col">Quantidade</th>
+                                    <th scope="col">Mínimo</th>
+                                    <th scope="col">Situação</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-estoque"></tbody>
                         </table>
                     </div>
-                </div>
+                </section>
 
-                <aside class="painel reposicao">
-                    <h2>Repor estoque</h2>
-                    <p>Informe o produto recebido e a quantidade.</p>
-                    <label for="produto-reposicao">Produto</label>
-                    <select id="produto-reposicao"></select>
-                    <label for="quantidade-reposicao">Quantidade</label>
-                    <input id="quantidade-reposicao" type="number" min="1" value="5">
-                    <button id="repor-estoque" class="botao-principal">Registrar entrada</button>
-                </aside>
+                <div class="gerente-lateral">
+                    <form class="bloco reposicao" id="form-reposicao" aria-labelledby="titulo-reposicao">
+                        <h2 id="titulo-reposicao">Repor estoque</h2>
+                        <p>Informe o produto recebido e a quantidade.</p>
+                        <label for="produto-reposicao">Produto</label>
+                        <select id="produto-reposicao" class="campo"></select>
+                        <label for="quantidade-reposicao">Quantidade</label>
+                        <input id="quantidade-reposicao" class="campo" type="number" min="1" max="10000" value="5" inputmode="numeric">
+                        <div class="atalhos" role="group" aria-label="Quantidades rápidas">
+                            <button type="button" class="atalho" data-qtd="5">+5</button>
+                            <button type="button" class="atalho" data-qtd="10">+10</button>
+                            <button type="button" class="atalho" data-qtd="20">+20</button>
+                        </div>
+                        <button type="submit" class="botao botao-principal" id="repor-estoque">Registrar entrada</button>
+                    </form>
+
+                    <section class="bloco" aria-labelledby="titulo-formas">
+                        <h2 id="titulo-formas">Vendas por pagamento</h2>
+                        <div id="lista-formas" class="lista-formas"></div>
+                    </section>
+                </div>
             </div>
 
-            <div class="painel painel-vendas">
-                <div class="titulo-secao">
+            <section class="bloco" aria-labelledby="titulo-vendas">
+                <div class="bloco-topo">
                     <div>
-                        <h2>Últimas vendas</h2>
-                        <p>Resumo das contas já finalizadas.</p>
+                        <h2 id="titulo-vendas">Últimas vendas</h2>
+                        <p>Contas já finalizadas, da mais recente para a mais antiga.</p>
                     </div>
                 </div>
                 <div id="lista-vendas" class="lista-vendas"></div>
-            </div>
+            </section>
         </section>
+
+        <p class="rodape-atualizacao" id="atualizacao" aria-live="off"></p>
     </main>
+
+    <!-- Diálogo de cancelamento (substitui o prompt() do navegador) -->
+    <dialog id="modal-cancelar" aria-labelledby="modal-titulo">
+        <form method="dialog" id="form-cancelar">
+            <h2 id="modal-titulo">Cancelar pedido</h2>
+            <p id="modal-descricao">Os itens voltam para o estoque.</p>
+            <label for="motivo-cancelamento">Motivo do cancelamento</label>
+            <textarea id="motivo-cancelamento" class="campo" rows="3" maxlength="200" placeholder="Ex.: cliente desistiu do prato"></textarea>
+            <div class="modal-linha">
+                <small id="motivo-ajuda">Escreva de 5 a 200 caracteres.</small>
+                <small id="motivo-contador">0/200</small>
+            </div>
+            <div class="modal-acoes">
+                <button type="button" class="botao botao-texto" id="cancelar-fechar">Voltar</button>
+                <button type="submit" class="botao botao-perigo" id="cancelar-confirmar">Cancelar pedido</button>
+            </div>
+        </form>
+    </dialog>
+
+    <div id="mensagem" class="aviso" role="status" aria-live="polite" hidden></div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
