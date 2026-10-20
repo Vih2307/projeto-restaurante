@@ -8,9 +8,6 @@ class Estoque:
         self.produtos_prontos = {}
         self.movimentacoes = []
 
-    # =========================
-    # CADASTRO
-    # =========================
 
     def cadastrar_ingrediente(
         self,
@@ -40,9 +37,6 @@ class Estoque:
             "estoque_minimo": float(estoque_minimo)
         }
 
-    # =========================
-    # ENTRADA
-    # =========================
 
     def entrada(
         self,
@@ -82,9 +76,6 @@ class Estoque:
 
         return True
 
-    # =========================
-    # SAÍDA
-    # =========================
 
     def saida(
         self,
@@ -143,9 +134,6 @@ class Estoque:
 
         return True
 
-    # =========================
-    # VERIFICAR ESTOQUE
-    # =========================
 
     def verificar_disponibilidade(
         self,
@@ -207,9 +195,6 @@ class Estoque:
 
         return True, "OK"
 
-    # =========================
-    # BAIXAR PRODUTO
-    # =========================
 
     def baixar_produto(
         self,
@@ -292,9 +277,6 @@ class Estoque:
 
         return True
 
-    # =========================
-    # BAIXAR PEDIDO
-    # =========================
 
     def baixar_pedido(
         self,
@@ -349,9 +331,6 @@ class Estoque:
             "Estoque atualizado com sucesso."
         )
 
-    # =========================
-    # MOSTRAR ESTOQUE
-    # =========================
 
     def mostrar_estoque(self):
 
@@ -417,9 +396,6 @@ class Estoque:
                     f"{alerta}"
                 )
 
-    # =========================
-    # ESTOQUE BAIXO
-    # =========================
 
     def mostrar_estoque_baixo(self):
 
@@ -472,9 +448,6 @@ class Estoque:
                 "do estoque mínimo."
             )
 
-    # =========================
-    # HISTÓRICO
-    # =========================
 
     def mostrar_historico(self):
 
@@ -501,9 +474,6 @@ class Estoque:
                 f"{movimento['motivo']}"
             )
 
-    # =========================
-    # MÉTODOS INTERNOS
-    # =========================
 
     def _obter_estoque(
         self,

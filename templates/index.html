@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <meta name="token" content="{{ token }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabor da Casa</title>
@@ -16,6 +17,7 @@
             </div>
         </div>
 
+        <p>{{ session["email"] }}</p><button type="button" onclick="sair()">Sair</button>
         <nav>
             <button class="botao-menu ativo" data-tela="garcom">
                 <span>🍽️</span> Tela do garçom
@@ -50,8 +52,6 @@
         </header>
 
         <div id="mensagem" class="mensagem escondido"></div>
-
-        <!-- TELA DO GARÇOM -->
         <section id="tela-garcom" class="tela ativa">
             <div class="painel-mesas">
                 <div class="titulo-secao">
@@ -103,8 +103,6 @@
                 </aside>
             </div>
         </section>
-
-        <!-- TELA DO CAIXA -->
         <section id="tela-caixa" class="tela">
             <div class="cards-resumo">
                 <article class="card-numero">
@@ -131,8 +129,6 @@
                 <div id="lista-contas" class="lista-contas"></div>
             </div>
         </section>
-
-        <!-- TELA DO GERENTE -->
         <section id="tela-gerente" class="tela">
             <div class="cards-resumo">
                 <article class="card-numero destaque">

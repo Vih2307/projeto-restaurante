@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso - Sabor da Casa</title>
+    <link rel="stylesheet" href="/static/login.css">
+</head>
+<body>
+    <main>
+        <h1>Sabor da Casa</h1>
+        <section id="acesso">
+            <h2>Entrar no sistema</h2>
+            <form id="form-login">
+                <label for="email-login">E-mail</label>
+                <input id="email-login" type="email" maxlength="254" autocomplete="username" required>
+                <label for="senha-login">Senha</label>
+                <input id="senha-login" type="password" maxlength="128" autocomplete="current-password" required>
+                <button>Entrar</button>
+            </form>
+            <button type="button" onclick="mostrarTela('recuperacao')">Esqueci minha senha</button>
+        </section>
+        <section id="recuperacao" hidden>
+            <h2>Recuperar senha</h2>
+            <form id="form-recuperacao">
+                <label for="email-recuperacao">E-mail cadastrado</label>
+                <input id="email-recuperacao" type="email" maxlength="254" required>
+                <button>Enviar código</button>
+            </form>
+            <button type="button" onclick="mostrarTela('alteracao')">Já recebi o código</button>
+            <button type="button" onclick="mostrarTela('acesso')">Voltar</button>
+        </section>
+        <section id="alteracao" hidden>
+            <h2>Definir nova senha</h2>
+            <form id="form-alteracao">
+                <label for="email-alteracao">E-mail cadastrado</label>
+                <input id="email-alteracao" type="email" maxlength="254" required>
+                <label for="codigo">Código recebido</label>
+                <input id="codigo" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" required>
+                <label for="nova-senha">Nova senha</label>
+                <input id="nova-senha" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+                <label for="confirmacao">Confirme a nova senha</label>
+                <input id="confirmacao" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+                <p>Use pelo menos 8 caracteres, com letras e números.</p>
+                <button>Alterar senha</button>
+            </form>
+            <button type="button" onclick="mostrarTela('recuperacao')">Solicitar outro código</button>
+            <button type="button" onclick="mostrarTela('acesso')">Voltar ao login</button>
+        </section>
+        <p id="mensagem" role="status"></p>
+    </main>
+    <script src="/static/login.js"></script>
+</body>
+</html>

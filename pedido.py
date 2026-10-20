@@ -1,23 +1,12 @@
-class Pedido:
+from carrinho import Carrinho
+
+
+class Pedido(Carrinho):
     def __init__(self, numero, mesa):
+        super().__init__()
         self.numero = numero
         self.mesa = mesa
-        self.itens = []
-        self.forma_pagamento = None
-        self.total = 0
         self.status = "Aguardando"
-
-    def adicionar_item(self, item, preco, quantidade):
-        for produto in self.itens:
-            if produto["nome"] == item:
-                produto["quantidade"] += quantidade
-                return
-
-        self.itens.append({
-            "nome": item,
-            "preco": preco,
-            "quantidade": quantidade
-        })
 
     def remover_item(self, indice):
         if 0 <= indice < len(self.itens):
@@ -29,16 +18,6 @@ class Pedido:
                 self.itens[indice]["quantidade"] = quantidade
             else:
                 self.remover_item(indice)
-
-    def calcular_total(self):
-        self.total = sum(
-            item["preco"] * item["quantidade"]
-            for item in self.itens
-        )
-        return self.total
-
-    def escolher_pagamento(self, forma):
-        self.forma_pagamento = forma
 
     def atualizar_status(self, status):
         self.status = status

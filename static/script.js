@@ -64,6 +64,10 @@ function abrirTela(nome) {
 async function carregarDados() {
     try {
         const resposta = await fetch("/api/dados");
+        if (resposta.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
         dadosSistema = await resposta.json();
 
         renderizarMesas();
@@ -228,7 +232,7 @@ async function enviarPedido() {
 
     const resposta = await fetch("/api/pedidos", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="token"]').content},
         body: JSON.stringify({mesa: mesaSelecionada, itens: carrinho})
     });
     const resultado = await resposta.json();
@@ -278,6 +282,29 @@ function renderizarCaixa() {
             const forma = card.querySelector("select").value;
             finalizarConta(pedido.numero, forma);
         });
+        const status = document.createElement("p");
+        status.textContent = "Status: " + pedido.status;
+        card.appendChild(status);
+
+        let proximo = "";
+        if (pedido.status === "Em preparo") proximo = "Pronto";
+        if (pedido.status === "Pronto") proximo = "Entregue";
+        if (proximo) {
+            const botao = document.createElement("button");
+            botao.textContent = "Marcar como " + proximo;
+            botao.addEventListener("click", function () {
+                atualizarStatus(pedido.numero, proximo);
+            });
+            card.appendChild(botao);
+        }
+        if (pedido.status === "Em preparo") {
+            const cancelar = document.createElement("button");
+            cancelar.textContent = "Cancelar pedido";
+            cancelar.addEventListener("click", function () {
+                cancelarPedido(pedido.numero);
+            });
+            card.appendChild(cancelar);
+        }
         area.appendChild(card);
     });
 }
@@ -290,7 +317,7 @@ async function finalizarConta(numero, formaPagamento) {
 
     const resposta = await fetch("/api/pedidos/" + numero + "/finalizar", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="token"]').content},
         body: JSON.stringify({forma_pagamento: formaPagamento})
     });
     const resultado = await resposta.json();
@@ -375,7 +402,7 @@ async function reporEstoque() {
 
     const resposta = await fetch("/api/estoque/entrada", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="token"]').content},
         body: JSON.stringify({nome: nome, quantidade: quantidade})
     });
     const resultado = await resposta.json();
@@ -392,4 +419,37 @@ function mostrarMensagem(texto, erro) {
     setTimeout(function () {
         mensagem.classList.add("escondido");
     }, 3500);
+}
+
+async function sair() {
+    const resposta = await fetch("/api/sair", {
+        method: "POST",
+        headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="token"]').content},
+        body: JSON.stringify({})
+    });
+    if (resposta.ok) window.location.href = "/login";
+}
+
+async function atualizarStatus(numero, status) {
+    const resposta = await fetch("/api/pedidos/" + numero + "/status", {
+        method: "POST",
+        headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="token"]').content},
+        body: JSON.stringify({status: status})
+    });
+    const resultado = await resposta.json();
+    mostrarMensagem(resultado.mensagem || resultado.erro, !resposta.ok);
+    if (resposta.ok) await carregarDados();
+}
+
+async function cancelarPedido(numero) {
+    const motivo = prompt("Motivo do cancelamento (5 a 200 caracteres):");
+    if (!motivo) return;
+    const resposta = await fetch("/api/pedidos/" + numero + "/cancelar", {
+        method: "POST",
+        headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="token"]').content},
+        body: JSON.stringify({motivo: motivo})
+    });
+    const resultado = await resposta.json();
+    mostrarMensagem(resultado.mensagem || resultado.erro, !resposta.ok);
+    if (resposta.ok) await carregarDados();
 }

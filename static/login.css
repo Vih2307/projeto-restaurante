@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f2ed;
+    color: #34291f;
+    margin: 0;
+}
+main {
+    max-width: 390px;
+    margin: 50px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+}
+label, input, button {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 12px;
+}
+input, button {
+    padding: 12px;
+    border: 1px solid #b8aca1;
+    border-radius: 6px;
+}
+button {
+    cursor: pointer;
+    background: #754329;
+    color: white;
+}
+button:disabled {
+    opacity: 0.6;
+}
+[hidden] {
+    display: none;
+}
+#mensagem {
+    line-height: 1.5;
+}
+@media (max-width: 480px) {
+    main { margin: 20px 12px; }
+}

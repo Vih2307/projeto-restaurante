@@ -13,9 +13,13 @@ class Caixa:
             print("O caixa está fechado.")
             return
 
+        if pedido.status in ["Finalizado", "Cancelado"]:
+            print("Esse pedido já foi encerrado.")
+            return
+
         valor = pedido.calcular_total()
         self.vendas.append(pedido)
-        self.total_vendido += valor
+        self.total_vendido = round(self.total_vendido + valor, 2)
         pedido.status = "Finalizado"
         print(f"Venda registrada: R$ {valor:.2f}")
 
