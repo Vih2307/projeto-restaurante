@@ -1,10 +1,10 @@
-# Sistema de Restaurante — Sabor da Casa
+# Sistema de Restaurante — Restaurante BKV
 
 Projeto acadêmico desenvolvido em Python para organizar o atendimento de um restaurante, permitindo controlar mesas, pedidos, pagamentos, estoque e usuários.
 
 O sistema utiliza Flask para conectar as classes Python à interface feita em HTML, CSS e JavaScript.
 
-Esta versão mantém a estrutura do projeto original e acrescenta login, recuperação de senha por e-mail, validações e melhorias nos pedidos.
+Esta versão mantém a estrutura do projeto original e acrescenta login, recuperação de senha por e-mail, validações e melhorias nos pedidos. A interface também foi redesenhada (novo visual, tela de acompanhamento de pedidos e atualização automática), sem alterar o código Python.
 
 ## Alunos responsáveis
 
@@ -17,6 +17,7 @@ Esta versão mantém a estrutura do projeto original e acrescenta login, recuper
 - [Objetivo](#objetivo)
 - [Tecnologias utilizadas](#tecnologias-utilizadas)
 - [Funcionalidades](#funcionalidades)
+- [Interface do front-end](#interface-do-front-end)
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Instalação e execução](#instalação-e-execução)
 - [Cadastro de usuários](#cadastro-de-usuários)
@@ -47,13 +48,14 @@ O fluxo principal permite:
 7. Registrar o pagamento.
 8. Liberar a mesa e acompanhar as vendas.
 
-A aplicação possui três áreas na interface:
+A aplicação possui quatro áreas na interface:
 
 - Garçom.
+- Pedidos.
 - Caixa.
 - Gerente.
 
-Essas áreas organizam as atividades. Nesta versão, todos os usuários autenticados podem acessar as operações das três telas.
+Essas áreas organizam as atividades. Nesta versão, todos os usuários autenticados podem acessar as operações das quatro telas.
 
 ## Tecnologias utilizadas
 
@@ -61,9 +63,10 @@ Essas áreas organizam as atividades. Nesta versão, todos os usuários autentic
 | --- | --- |
 | Python | Classes, validações e regras do sistema |
 | Flask | Rotas e comunicação entre navegador e backend |
-| HTML | Estrutura das páginas |
-| CSS | Aparência e adaptação das telas |
-| JavaScript | Interação dos botões e envio de requisições |
+| HTML | Estrutura das páginas, com modelos Jinja do Flask |
+| CSS | Aparência, grades e adaptação a tablet e celular |
+| JavaScript | Desenho das telas, interação dos botões, atualização automática e envio de requisições |
+| Google Fonts | Fontes Bricolage Grotesque e IBM Plex Mono, carregadas pela internet (há fontes alternativas sem conexão) |
 | JSON | Armazenamento dos usuários |
 | python-dotenv | Leitura das configurações do arquivo `.env` |
 | Werkzeug | Geração e verificação dos hashes de senhas e códigos |
@@ -89,22 +92,29 @@ O Werkzeug é instalado como dependência do Flask.
 ### Atendimento do garçom
 
 - Visualização das mesas.
-- Consulta ao cardápio por categoria.
-- Seleção da mesa.
-- Inclusão de produtos no pedido.
+- Consulta ao cardápio por categoria e por busca.
+- Aviso de estoque baixo ("Restam N") e de produto esgotado no cardápio.
+- Seleção da mesa, com o total da conta aparecendo nas mesas ocupadas.
+- Inclusão de produtos na comanda, limitada ao estoque disponível.
 - Ajuste das quantidades antes do envio.
 - Visualização do total.
+- Visualização dos itens que a mesa já pediu.
 - Envio dos itens para preparo.
 - Inclusão de novos itens em uma conta aberta.
+
+### Acompanhamento dos pedidos
+
+- Quadro com três colunas: Em preparo, Prontos para entregar e Entregues.
+- Atualização para Pronto e Entregue.
+- Cancelamento de pedidos em preparo, com motivo informado em um diálogo.
+- Contador de pedidos em andamento na aba.
 
 ### Caixa
 
 - Consulta às contas abertas.
 - Visualização dos produtos e valores.
-- Acompanhamento do status dos pedidos.
-- Atualização para Pronto e Entregue.
-- Cancelamento de pedidos em preparo.
-- Escolha da forma de pagamento.
+- Visualização do status de cada pedido.
+- Escolha da forma de pagamento por botões.
 - Finalização da conta.
 - Liberação da mesa.
 - Consulta ao total vendido e à quantidade de vendas.
@@ -117,8 +127,22 @@ O Werkzeug é instalado como dependência do Flask.
 - Visualização das quantidades em estoque.
 - Identificação dos produtos com estoque baixo.
 - Filtro dos produtos que precisam de reposição.
-- Registro de entrada de produtos.
-- Histórico de movimentações mantido pela classe Estoque.
+- Registro de entrada de produtos, com atalhos de +5, +10 e +20.
+- Barras de quantidade e alerta de estoque baixo na aba.
+- Total vendido por forma de pagamento.
+- Histórico de movimentações mantido pela classe Estoque (sem tela na interface).
+
+## Interface do front-end
+
+O front-end usa HTML, CSS e JavaScript puros, sem bibliotecas ou frameworks, e consome as mesmas rotas do back-end.
+
+- Barra superior com as abas Garçom, Pedidos, Caixa e Gerente. No celular, as abas ficam na parte inferior.
+- Comanda com aparência de nota de papel na tela do garçom.
+- Atualização automática dos dados a cada 15 segundos, sem redesenhar a tela quando nada mudou.
+- Faixa de aviso quando a conexão com o servidor falha.
+- Nome e iniciais do usuário calculados a partir do e-mail da sessão.
+- Textos inseridos na página como texto puro, sem `innerHTML`, para evitar injeção de código.
+- Foco visível, rótulos para leitores de tela e respeito à preferência de reduzir animações.
 
 ## Estrutura do projeto
 
@@ -138,14 +162,13 @@ O Werkzeug é instalado como dependência do Flask.
 | `requirements.txt` | Lista as dependências externas |
 | `.env.example` | Modelo das configurações necessárias |
 | `.gitignore` | Define arquivos que não devem ser enviados ao Git |
-| `templates/index.html` | Interface principal do restaurante |
-| `templates/login.html` | Formulários de login e recuperação |
-| `static/script.js` | Comunicação da interface principal com o backend |
-| `static/style.css` | Aparência da interface principal |
-| `static/login.js` | Comunicação dos formulários de acesso com o backend |
+| `templates/index.html` | Estrutura da interface principal: barra superior, quatro telas, diálogo de cancelamento e avisos |
+| `templates/login.html` | Formulários de login e recuperação de senha |
+| `static/script.js` | Comunicação da interface principal com o backend e desenho das telas |
+| `static/style.css` | Aparência da interface principal, incluindo a versão para celular |
+| `static/login.js` | Validações e comunicação dos formulários de acesso com o backend |
 | `static/login.css` | Aparência da página de acesso |
 | `dados/usuarios.json` | Cadastro persistente dos usuários, criado automaticamente |
-| `EXPLICACAO_DAS_MODIFICACOES.txt` | Explicação detalhada das alterações |
 | `DOCUMENTACAO.pdf` | Documentação preservada da versão original |
 
 O arquivo `.env` é criado pelo responsável pela configuração e não acompanha as credenciais reais no projeto.
@@ -319,7 +342,7 @@ O arquivo `.env` não deve ser publicado no repositório.
 1. Abra a página de login.
 2. Clique em **Esqueci minha senha**.
 3. Informe o e-mail cadastrado.
-4. Clique em **Enviar código**.
+4. Clique em **Enviar código**. O botão fica bloqueado por 60 segundos, o mesmo intervalo exigido pelo servidor.
 5. Consulte sua caixa de entrada e a pasta de spam.
 6. Clique em **Já recebi o código**.
 7. Informe o e-mail e o código recebido.
@@ -401,7 +424,7 @@ A atualização manual segue:
 
 **Em preparo → Pronto → Entregue**
 
-Os botões ficam nos cartões da tela do caixa.
+Os botões ficam nos cartões da tela **Pedidos**.
 
 Atualizar para Entregue não registra pagamento nem libera a mesa. Essas ações acontecem no fechamento da conta.
 
@@ -411,7 +434,7 @@ O status representa o pedido inteiro, não o andamento individual de cada item.
 
 Um pedido pode ser cancelado enquanto estiver **Em preparo**.
 
-O funcionário informa um motivo entre 5 e 200 caracteres.
+Na tela **Pedidos**, o funcionário clica em **Cancelar pedido** e informa um motivo entre 5 e 200 caracteres em um diálogo. O botão de confirmação só é habilitado com um motivo válido.
 
 O sistema:
 
@@ -633,7 +656,7 @@ A alteração dos produtos e preços é feita diretamente nesse arquivo. Não ex
 | Status | Pedido enviado para preparo | Atualização para Pronto e Entregue |
 | Cancelamento | Sem rota específica | Cancelamento com motivo e devolução ao estoque |
 | Caixa | Registro do fluxo original | Verificações adicionais contra encerramento repetido |
-| Interface | Três telas operacionais | Tela de acesso e novos botões |
+| Interface | Três telas operacionais | Tela de acesso, tela de pedidos e novos botões |
 | Documentação | Descrição da versão inicial | Guia de instalação e detalhamento das alterações |
 
 ### Correção dos itens repetidos
@@ -883,6 +906,12 @@ Entre novamente. Isso pode ocorrer após uma troca de senha ou mudança da chave
 
 Se a mensagem solicitar atualização da página, recarregue para receber o token correspondente à sessão.
 
+### As fontes ficaram diferentes ou a tela mostra aviso de conexão
+
+As fontes vêm do Google Fonts e exigem internet. Sem ela, o sistema usa fontes do computador e continua funcionando.
+
+A faixa vermelha "Sem conexão com o servidor" indica que o `app.py` não está respondendo. Confira se o servidor está em execução.
+
 ### Os pedidos desapareceram ao reiniciar
 
 Pedidos, vendas e estoque continuam em memória. Esse é o comportamento atual do projeto.
@@ -916,11 +945,14 @@ Pare o servidor e inicie-o novamente. A lista de usuários é carregada na inici
 - O servidor processa uma requisição por vez, usando `threaded=False`.
 - O envio de e-mail pode fazer outras requisições aguardarem.
 - Os testes de recuperação não confirmam a entrega real pelo provedor.
+- O front-end não possui testes automatizados; foi verificado manualmente no navegador.
+- As fontes da interface vêm do Google Fonts e exigem internet; sem ela, são usadas fontes do sistema.
+- O nome exibido no topo é derivado do e-mail, pois a sessão não guarda o nome cadastrado.
+- A atualização automática faz uma requisição a cada 15 segundos por tela aberta, o que pesa mais com `threaded=False`.
+- Histórico de estoque e reserva de mesas não têm tela, pois não existem rotas na API.
 
 A estrutura foi mantida simples para acompanhar a organização acadêmica do repositório. A publicação para uso real exige preparar a hospedagem, HTTPS e armazenamento apropriado.
 
 ## Documentação complementar
 
-O arquivo `EXPLICACAO_DAS_MODIFICACOES.txt` apresenta uma explicação mais detalhada das funções e de suas ligações com o restante do código.
-
-O arquivo `DOCUMENTACAO.pdf` foi preservado como documentação da versão original. As funcionalidades acrescentadas estão descritas neste README e no arquivo de modificações.
+O arquivo `DOCUMENTACAO.pdf` contém a documentação da versão original do projeto. As funcionalidades acrescentadas estão descritas neste README.

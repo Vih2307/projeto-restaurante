@@ -57,7 +57,7 @@ class TesteSistemaRestaurante(unittest.TestCase):
         })
 
     def test_paginas_e_acesso(self):
-        self.assertIn(b"Sabor da Casa", self.cliente.get("/").data)
+        self.assertIn(b"Restaurante BKV", self.cliente.get("/").data)
         anonimo = sistema.app.test_client()
         self.assertEqual(anonimo.get("/").status_code, 302)
         self.assertEqual(anonimo.get("/api/dados").status_code, 401)

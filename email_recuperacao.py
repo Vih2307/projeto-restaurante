@@ -14,7 +14,7 @@ def enviar_codigo(email, codigo):
         raise ValueError("Configure o e-mail no arquivo .env.")
 
     mensagem = EmailMessage()
-    mensagem["Subject"] = "Recuperação de senha - Sabor da Casa"
+    mensagem["Subject"] = "Recuperação de senha - Restaurante BKV"
     mensagem["From"] = remetente
     mensagem["To"] = email
     mensagem.set_content(
