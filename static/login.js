@@ -1,5 +1,5 @@
 /* ==========================================================
-   Sabor da Casa - lógica da página de acesso
+   Restaurante BKV - lógica da página de acesso
    Três passos: entrar, pedir código por e-mail, definir nova senha.
    ========================================================== */
 

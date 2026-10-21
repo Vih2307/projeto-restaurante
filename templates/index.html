@@ -4,7 +4,7 @@
     <meta name="token" content="{{ token }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sabor da Casa</title>
+    <title>Restaurante BKV</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
 
     <header class="topo">
         <div class="marca">
-            <span class="selo" aria-hidden="true">BKV</span>
+            <img class="selo-img" src="{{ url_for('static', filename='img/logo-bkv.png') }}" alt="Logo do Restaurante BKV">
             <div>
                 <strong>Restaurante BKV</strong>
                 <small id="data-atual"></small>

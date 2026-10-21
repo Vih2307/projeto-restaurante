@@ -1,5 +1,5 @@
 /* ==========================================================
-   Sabor da Casa - folha de estilos principal
+   Restaurante BKV - folha de estilos principal
    Conceito: comanda de papel sobre um painel verde-garrafa.
    ========================================================== */
 
@@ -168,6 +168,14 @@ button { cursor: pointer; }
     gap: 10px;
 }
 .usuario-nome { font-size: 14px; font-weight: 500; }
+
+/* Logo redondo do restaurante (substitui o selo com letras) */
+.selo-img {
+    display: block;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+}
 
 .avatar {
     display: grid;

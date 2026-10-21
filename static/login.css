@@ -1,5 +1,5 @@
 /* ==========================================================
-   Sabor da Casa - página de acesso
+   Restaurante BKV - página de acesso
    Painel de marca com padrão de azulejo + formulário limpo.
    ========================================================== */
 
@@ -62,7 +62,35 @@ button, input { font: inherit; color: inherit; }
     mask-image: linear-gradient(to bottom, #000 30%, transparent 85%);
 }
 
-.marca-texto { position: relative; max-width: 380px; }
+.marca-texto { position: relative; max-width: 520px; }
+
+/* Logo redondo acima do nome */
+/* Logo ao lado do nome */
+.marca-titulo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.selo-img {
+    flex: none;
+    width: 72px;
+    height: 72px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+/* Monograma dourado centralizado, na frente dos losangos */
+.marca-assinatura {
+    position: absolute;
+    top: 34%;
+    left: 50%;
+    width: min(80%, 420px);
+    height: auto;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
 .selo {
     display: grid;
     place-items: center;
@@ -74,7 +102,7 @@ button, input { font: inherit; color: inherit; }
     font-size: 20px;
     font-weight: 700;
 }
-.marca h1 { font-size: 44px; line-height: 1.05; letter-spacing: -0.02em; }
+.marca h1 { font-size: clamp(30px, 3.2vw, 44px); line-height: 1.05; letter-spacing: -0.02em; }
 .marca p { margin-top: 12px; color: #c9d8d2; font-size: 18px; }
 
 /* ---------- Formulários ---------- */
@@ -195,7 +223,8 @@ form + .link { margin-top: 14px; }
     .marca { padding: 28px 24px; align-items: center; }
     .marca h1 { font-size: 30px; }
     .marca p { display: none; }
-    .selo { width: 44px; height: 44px; margin-bottom: 10px; font-size: 16px; }
+    .selo-img { width: 48px; height: 48px; }
+    .marca-assinatura { display: none; }
     .acesso { padding: 28px 20px 40px; }
     h2 { font-size: 26px; }
 }

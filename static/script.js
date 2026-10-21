@@ -1,5 +1,5 @@
 /* ==========================================================
-   Sabor da Casa - lógica da interface principal
+   Restaurante BKV - lógica da interface principal
    Este arquivo conversa com as rotas do back-end (Flask) e
    desenha as telas: Garçom, Pedidos, Caixa e Gerente.
    ========================================================== */
@@ -200,7 +200,7 @@ function abrirTela(nome) {
     const abaAtiva = document.querySelector('.aba[data-tela="' + nome + '"]');
     abaAtiva.classList.add("ativa");
     abaAtiva.setAttribute("aria-current", "page");
-    document.title = TITULOS_TELA[nome] + " - Sabor da Casa";
+    document.title = TITULOS_TELA[nome] + " - Restaurante BKV";
     window.scrollTo({top: 0});
 }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso - Sabor da Casa</title>
+    <title>Acesso - Restaurante BKV</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&display=swap" rel="stylesheet">
@@ -15,9 +15,12 @@
         <!-- Painel de marca: padrão de azulejo feito só com CSS -->
         <aside class="marca" aria-hidden="false">
             <div class="azulejo" aria-hidden="true"></div>
+            <img class="marca-assinatura" src="{{ url_for('static', filename='img/bkv-dourado.png') }}" alt="BKV">
             <div class="marca-texto">
-                <span class="selo" aria-hidden="true">BKV</span>
-                <h1>Restaurante BKV</h1>
+                <div class="marca-titulo">
+                    <img class="selo-img" src="{{ url_for('static', filename='img/logo-bkv.png') }}" alt="Logo do Restaurante BKV">
+                    <h1>Restaurante BKV</h1>
+                </div>
                 <p>Mesas, pedidos, caixa e estoque em um só lugar.</p>
             </div>
         </aside>
