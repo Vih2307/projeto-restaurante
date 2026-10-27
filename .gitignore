@@ -1,7 +1,10 @@
 __pycache__/
 *.pyc
 .venv/
+node_modules/
 .env
 dados/
-.env.example
-.gitignore
+
+# Credenciais do Firebase: NUNCA publicar
+firebase-credenciais*.json
+*-firebase-adminsdk-*.json

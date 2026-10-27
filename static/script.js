@@ -140,10 +140,12 @@ function mostrarData() {
     });
 }
 
-// O back-end guarda o e-mail na sessão; o nome exibido vem da parte antes do "@".
+// O back-end guarda nome e e-mail na sessão (vêm do cadastro no Neon).
+// Se o nome não vier, usamos a parte do e-mail antes do "@".
 function mostrarUsuario() {
     const email = document.body.dataset.email || "";
-    const nome = email.split("@")[0].replace(/[._-]+/g, " ").trim() || "Usuário";
+    const nomeCadastrado = (document.body.dataset.nome || "").trim();
+    const nome = nomeCadastrado || email.split("@")[0].replace(/[._-]+/g, " ").trim() || "Usuário";
     const exibido = nome.charAt(0).toUpperCase() + nome.slice(1);
     pegar("nome-usuario").textContent = exibido;
     pegar("avatar").textContent = exibido.slice(0, 2).toUpperCase();

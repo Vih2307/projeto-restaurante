@@ -47,49 +47,16 @@
                 <button type="button" class="link" data-ir="recuperacao">Esqueci minha senha</button>
             </section>
 
-            <!-- Passo 2: pedir o código por e-mail -->
+            <!-- Passo 2: pedir o link de recuperação por e-mail (o Firebase envia e hospeda a página da nova senha) -->
             <section id="recuperacao" hidden aria-labelledby="titulo-recuperacao">
                 <h2 id="titulo-recuperacao" tabindex="-1">Recuperar senha</h2>
-                <p class="apoio">Enviaremos um código de 6 números para o seu e-mail.</p>
+                <p class="apoio">Enviaremos para o seu e-mail um link para criar uma nova senha.</p>
                 <form id="form-recuperacao">
                     <label for="email-recuperacao">E-mail cadastrado</label>
                     <input id="email-recuperacao" type="email" maxlength="254" autocomplete="email" required>
-                    <button class="botao" id="botao-enviar-codigo">Enviar código</button>
+                    <button class="botao" id="botao-enviar-link">Enviar link</button>
                 </form>
-                <button type="button" class="link" data-ir="alteracao">Já recebi o código</button>
-                <button type="button" class="link" data-ir="acesso">Voltar ao login</button>
-            </section>
-
-            <!-- Passo 3: informar o código e a nova senha -->
-            <section id="alteracao" hidden aria-labelledby="titulo-alteracao">
-                <h2 id="titulo-alteracao" tabindex="-1">Definir nova senha</h2>
-                <p class="apoio">O código vale por 10 minutos.</p>
-                <form id="form-alteracao">
-                    <label for="email-alteracao">E-mail cadastrado</label>
-                    <input id="email-alteracao" type="email" maxlength="254" autocomplete="email" required>
-
-                    <label for="codigo">Código recebido</label>
-                    <input id="codigo" class="codigo" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
-
-                    <label for="nova-senha">Nova senha</label>
-                    <div class="campo-senha">
-                        <input id="nova-senha" type="password" minlength="8" maxlength="128" autocomplete="new-password" aria-describedby="regras-senha" required>
-                        <button type="button" class="ver-senha" data-alvo="nova-senha" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
-                    </div>
-
-                    <label for="confirmacao">Confirme a nova senha</label>
-                    <input id="confirmacao" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
-
-                    <ul id="regras-senha" class="regras">
-                        <li data-regra="tamanho">8 ou mais caracteres</li>
-                        <li data-regra="letra">Pelo menos uma letra</li>
-                        <li data-regra="numero">Pelo menos um número</li>
-                        <li data-regra="igual">As duas senhas iguais</li>
-                    </ul>
-
-                    <button class="botao">Alterar senha</button>
-                </form>
-                <button type="button" class="link" data-ir="recuperacao">Pedir outro código</button>
+                <p class="apoio">Abra o e-mail, clique no link, escolha a nova senha e depois volte aqui para entrar. Confira também a caixa de spam.</p>
                 <button type="button" class="link" data-ir="acesso">Voltar ao login</button>
             </section>
         </main>

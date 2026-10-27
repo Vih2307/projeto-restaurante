@@ -3,9 +3,11 @@ import secrets
 import time
 from flask import Flask, jsonify, render_template, request, session, redirect
 from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash, check_password_hash
-from usuario import carregar_usuarios, salvar_usuarios, buscar_usuario, senha_valida, email_valido
-from email_recuperacao import enviar_codigo
+import autenticacao
+import banco
+from autenticacao import ErroAutenticacao
+from banco import BancoErro
+from usuario import email_valido
 
 from caixa import Caixa
 from categoria import categoria
@@ -20,8 +22,13 @@ app.secret_key = os.getenv("CHAVE_SECRETA") or secrets.token_hex(32)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["MAX_CONTENT_LENGTH"] = 65536
-usuarios = carregar_usuarios()
 tentativas_login = {}
+tentativas_recuperacao = {}
+
+# De quanto em quanto tempo a sessão é conferida de novo no Firebase e no Neon.
+INTERVALO_CONFERENCIA = 300  # 5 minutos
+# Se o Firebase ou o Neon ficarem fora do ar, a sessão continua valendo por este tempo.
+TOLERANCIA_FALHA = 1800  # 30 minutos
 
 
 def ler_dados():
@@ -43,14 +50,54 @@ def ler_quantidade(valor):
     return quantidade
 
 
+def passou_do_limite(tabela, chave, maximo, janela):
+    """Conta uma tentativa. Devolve True quando o limite da janela (em segundos) já foi atingido."""
+    agora = time.time()
+    registro = tabela.get(chave)
+    if registro is None or agora > registro["validade"]:
+        registro = {"quantidade": 0, "validade": agora + janela}
+        tabela[chave] = registro
+    if registro["quantidade"] >= maximo:
+        return True
+    registro["quantidade"] += 1
+    return False
+
+
+def sessao_valida():
+    """Confere se a sessão pertence a um funcionário que ainda pode usar o sistema.
+
+    A cada INTERVALO_CONFERENCIA a sessão é conferida de novo: a conta precisa continuar
+    ativa no Neon e não pode ter sido desativada, apagada ou ter a senha redefinida no
+    Firebase depois do login. Se o Firebase ou o Neon estiverem fora do ar, a sessão
+    continua valendo por até TOLERANCIA_FALHA, para não parar o restaurante.
+    """
+    uid = session.get("uid")
+    if not uid:
+        return False
+
+    agora = time.time()
+    if agora - session.get("tentou_em", 0) >= INTERVALO_CONFERENCIA:
+        session["tentou_em"] = agora
+        try:
+            usuario = banco.buscar_usuario_por_uid(uid)
+            if usuario is None or not usuario["ativo"]:
+                return False
+            if not autenticacao.conta_ainda_valida(uid, session.get("iat", 0)):
+                return False
+            session["verificado_em"] = agora
+        except (BancoErro, ErroAutenticacao) as erro:
+            app.logger.warning("Não foi possível conferir a sessão agora: %s", erro)
+
+    return agora - session.get("verificado_em", 0) < TOLERANCIA_FALHA
+
+
 @app.before_request
 def verificar_acesso():
-    rotas_publicas = ["login", "entrar", "recuperar_senha", "alterar_senha", "static"]
+    rotas_publicas = ["login", "entrar", "recuperar_senha", "static"]
     if request.endpoint is None or request.endpoint in rotas_publicas:
         return
 
-    usuario = buscar_usuario(usuarios, session.get("email"))
-    if usuario is None or session.get("versao") != usuario.versao:
+    if not sessao_valida():
         session.clear()
         if request.path == "/":
             return redirect("/login")
@@ -67,6 +114,20 @@ def login():
     return render_template("login.html")
 
 
+def erro_de_login(erro):
+    """Converte uma falha do Firebase em resposta para a tela de login."""
+    if erro.tipo == "credenciais":
+        return jsonify({"erro": "E-mail ou senha incorretos."}), 401
+    if erro.tipo == "desativada":
+        return jsonify({"erro": "Sua conta está desativada. Fale com o gerente."}), 403
+    if erro.tipo == "muitas_tentativas":
+        return jsonify({"erro": "Muitas tentativas. Aguarde alguns minutos ou use \"Esqueci minha senha\"."}), 429
+    app.logger.error("Falha no login pelo Firebase: %s", erro.mensagem)
+    if erro.tipo == "configuracao":
+        return jsonify({"erro": "O login não está configurado corretamente. Avise o responsável pelo sistema."}), 503
+    return jsonify({"erro": "Não foi possível falar com o serviço de login. Tente novamente."}), 503
+
+
 @app.route("/api/login", methods=["POST"])
 def entrar():
     dados = ler_dados()
@@ -75,24 +136,38 @@ def entrar():
     if not isinstance(email, str) or not isinstance(senha, str) or len(senha) > 128:
         return jsonify({"erro": "Informe e-mail e senha válidos."}), 400
 
-    ip = request.remote_addr
-    agora = time.time()
-    tentativa = tentativas_login.get(ip)
-    if tentativa is None or agora > tentativa["validade"]:
-        tentativa = {"quantidade": 0, "validade": agora + 300}
-        tentativas_login[ip] = tentativa
-    if tentativa["quantidade"] >= 10:
+    if passou_do_limite(tentativas_login, request.remote_addr, 10, 300):
         return jsonify({"erro": "Aguarde 5 minutos antes de tentar novamente."}), 429
-    tentativa["quantidade"] += 1
 
-    usuario = buscar_usuario(usuarios, email.strip().lower())
-    if usuario is None or not usuario.verificar_senha(senha):
+    email = email.strip().lower()
+    if not email_valido(email) or not senha:
         return jsonify({"erro": "E-mail ou senha incorretos."}), 401
 
+    try:
+        conta = autenticacao.entrar(email, senha)
+        usuario = banco.buscar_usuario_por_uid(conta["uid"])
+    except ErroAutenticacao as erro:
+        return erro_de_login(erro)
+    except BancoErro as erro:
+        app.logger.error("Falha ao consultar o banco no login: %s", erro)
+        return jsonify({"erro": "Não foi possível consultar o banco de dados. Tente novamente."}), 503
+
+    if usuario is None or not usuario["ativo"]:
+        return jsonify({"erro": "Seu acesso não está liberado. Fale com o gerente."}), 403
+
+    agora = time.time()
     session.clear()
-    session["email"] = usuario.email
-    session["versao"] = usuario.versao
+    session["uid"] = conta["uid"]
+    session["email"] = usuario["email"]
+    session["nome"] = usuario["nome"]
+    session["iat"] = conta["iat"]
     session["token"] = secrets.token_hex(16)
+    session["verificado_em"] = agora
+    session["tentou_em"] = agora
+    try:
+        banco.registrar_login(conta["uid"])
+    except BancoErro as erro:
+        app.logger.warning("Não foi possível registrar o horário do login: %s", erro)
     return jsonify({"mensagem": "Login realizado."})
 
 
@@ -109,60 +184,20 @@ def recuperar_senha():
     if not email_valido(email):
         return jsonify({"erro": "Informe um e-mail válido."}), 400
 
-    mensagem = "Se o e-mail estiver cadastrado, o código será enviado."
-    usuario = buscar_usuario(usuarios, email.strip().lower())
-    if usuario is None:
-        return jsonify({"mensagem": mensagem})
+    if passou_do_limite(tentativas_recuperacao, request.remote_addr, 5, 600):
+        return jsonify({"erro": "Muitos pedidos seguidos. Aguarde alguns minutos."}), 429
 
-    agora = time.time()
-    if agora - usuario.ultimo_envio < 60:
-        return jsonify({"mensagem": mensagem})
-
-    usuario.ultimo_envio = agora
-    usuario.codigo = ""
-    usuario.validade_codigo = 0
-    salvar_usuarios(usuarios)
-    codigo = str(secrets.randbelow(1000000)).zfill(6)
+    # A resposta é sempre a mesma, para não revelar quais e-mails estão cadastrados.
+    mensagem = "Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha."
+    email = email.strip().lower()
     try:
-        enviar_codigo(usuario.email, codigo)
-    except (OSError, ValueError):
-        app.logger.error("Não foi possível enviar o e-mail. Verifique o arquivo .env.")
-        return jsonify({"mensagem": mensagem})
-
-    usuario.codigo = generate_password_hash(codigo)
-    usuario.validade_codigo = agora + 600
-    usuario.tentativas = 0
-    salvar_usuarios(usuarios)
+        # Só funcionário ativo no Neon recebe o e-mail, no máximo um por minuto.
+        if banco.reservar_envio_recuperacao(email, 60):
+            autenticacao.enviar_recuperacao(email)
+    except (BancoErro, ErroAutenticacao) as erro:
+        app.logger.error("Não foi possível enviar o e-mail de recuperação: %s", erro)
     return jsonify({"mensagem": mensagem})
 
-
-@app.route("/api/alterar-senha", methods=["POST"])
-def alterar_senha():
-    dados = ler_dados()
-    email = dados.get("email", "")
-    codigo = dados.get("codigo", "")
-    senha = dados.get("senha", "")
-    confirmacao = dados.get("confirmacao", "")
-    if not email_valido(email) or not isinstance(codigo, str) or len(codigo) != 6 or not codigo.isdigit():
-        return jsonify({"erro": "Informe e-mail e código de 6 números."}), 400
-    if not senha_valida(senha):
-        return jsonify({"erro": "Use de 8 a 128 caracteres, com letras e números."}), 400
-    if senha != confirmacao:
-        return jsonify({"erro": "As senhas não são iguais."}), 400
-
-    usuario = buscar_usuario(usuarios, email.strip().lower())
-    if usuario is None or not usuario.codigo or time.time() > usuario.validade_codigo or usuario.tentativas >= 5:
-        return jsonify({"erro": "Código inválido ou expirado. Solicite outro."}), 400
-
-    usuario.tentativas += 1
-    if not check_password_hash(usuario.codigo, codigo):
-        salvar_usuarios(usuarios)
-        return jsonify({"erro": "Código inválido ou expirado. Solicite outro."}), 400
-
-    usuario.alterar_senha(senha)
-    salvar_usuarios(usuarios)
-    session.clear()
-    return jsonify({"mensagem": "Senha alterada. Entre com sua nova senha."})
 
 mesas = [Mesa("Livre", numero, False) for numero in range(1, 9)]
 pedidos = []
